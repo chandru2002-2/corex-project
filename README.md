@@ -223,7 +223,98 @@ Password: admin123
 * Docker deployment
 
 ---
+Add this to your app.jsx and repectives 
 
+const API_TREE = {
+  Auth: [
+    {
+      name: "Register",
+      method: "POST",
+      url: "/auth/register",
+      body: true,
+      sampleBody: `{
+  "username": "user",
+  "email": "user@gmail.com",
+  "password": "1234",
+  "role": "USER"
+}`
+    },
+    {
+      name: "Create Admin",
+      method: "POST",
+      url: "/auth/create-admin",
+      body: true,
+      sampleBody: `{
+  "username": "admin",
+  "email": "admin@corex.com",
+  "password": "admin123"
+}`
+    },
+    {
+      name: "Login",
+      method: "POST",
+      url: "/auth/login",
+      body: true,
+      sampleBody: `{
+  "email": "admin@corex.com",
+  "password": "admin123"
+}`
+    },
+    {
+      name: "Refresh Token",
+      method: "POST",
+      url: "/auth/refresh",
+      body: true,
+      authRequired: false,
+      sampleBody: `{
+  "refreshToken": "PASTE_REFRESH_TOKEN"
+}`
+    },
+    {
+      name: "Logout",
+      method: "POST",
+      url: "/auth/logout",
+      authRequired: true
+    }
+  ],
+
+  Admin: [
+    { name: "Audit Logs", method: "GET", url: "/admin/audit", authRequired: true },
+    { name: "Metrics", method: "GET", url: "/admin/metrics", authRequired: true },
+    { name: "Admin Test", method: "GET", url: "/admin/test", authRequired: true }
+  ],
+
+  User: [
+    { name: "User Test", method: "GET", url: "/user/test", authRequired: true }
+  ]
+};
+
+Inside your callApi():
+
+// Refresh token handling
+if (selectedApi.url === "/auth/refresh" && res.ok && data.accessToken) {
+  localStorage.setItem("token", data.accessToken);
+  setToken(data.accessToken);
+}
+
+Fix logout handling
+if (selectedApi.url === "/auth/logout" && res.ok) {
+  localStorage.removeItem("token");
+  setToken(null);
+}
+
+Add badges:
+
+{api.name}
+{api.url === "/auth/refresh" && <span className="auth-badge">♻️</span>}
+{api.url === "/auth/logout" && <span className="auth-badge">🚪</span>}
+
+Add disable logic (important UX)
+<button
+  className="send"
+  onClick={callApi}
+  disabled={loading || (selectedApi.authRequired && !token)}
+>
  Author
 
-**Chandru**
+Chandru
